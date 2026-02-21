@@ -1,0 +1,32 @@
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /health                   --> main.main.func1 (3 handlers)
+[GIN-debug] POST   /users                    --> event-registration-api/handlers.(*UserHandler).CreateUser-fm (3 handlers)
+[GIN-debug] GET    /users                    --> event-registration-api/handlers.(*UserHandler).GetUsers-fm (3 handlers)
+[GIN-debug] POST   /events                   --> event-registration-api/handlers.(*EventHandler).CreateEvent-fm (3 handlers)
+[GIN-debug] GET    /events                   --> event-registration-api/handlers.(*EventHandler).GetEvents-fm (3 handlers)
+[GIN-debug] GET    /events/:id               --> event-registration-api/handlers.(*EventHandler).GetEventByID-fm (3 handlers)
+[GIN-debug] POST   /events/:id/register      --> event-registration-api/handlers.(*RegistrationHandler).RegisterForEvent-fm (3 handlers)
+[GIN-debug] DELETE /registrations/:id        --> event-registration-api/handlers.(*RegistrationHandler).CancelRegistration-fm (3 handlers)
+2026/02/21 08:26:21 Server starting on port 8080
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2026/02/21 - 08:26:21 | 200 |       562.5µs |             ::1 | GET      "/health"
+[GIN] 2026/02/21 - 08:26:22 | 201 |       3.146ms |             ::1 | POST     "/users"
+[GIN] 2026/02/21 - 08:26:22 | 201 |      3.3357ms |             ::1 | POST     "/users"
+[GIN] 2026/02/21 - 08:26:23 | 200 |      1.9146ms |             ::1 | GET      "/users"
+[GIN] 2026/02/21 - 08:26:23 | 201 |      3.4579ms |             ::1 | POST     "/events"
+[GIN] 2026/02/21 - 08:26:24 | 200 |      2.4145ms |             ::1 | GET      "/events"
+[GIN] 2026/02/21 - 08:26:25 | 200 |       862.5µs |             ::1 | GET      "/events/02bb3968-6880-4ebb-b87f-fd7658e8d62d"
+[GIN] 2026/02/21 - 08:26:25 | 201 |      3.6655ms |             ::1 | POST     "/events/02bb3968-6880-4ebb-b87f-fd7658e8d62d/register"
+
+2026/02/21 08:26:26 [31;1mD:/Downloads/event-registration-api/repositories/registration_repository.go:55 [35;1mERROR: duplicate key value violates unique constraint "idx_event_user" (SQLSTATE 23505)
+[0m[33m[1.065ms] [34;1m[rows:0][0m INSERT INTO "registrations" ("event_id","user_id","status","created_at","updated_at") VALUES ('02bb3968-6880-4ebb-b87f-fd7658e8d62d','265681da-8475-4d7e-912c-d41edc625536','confirmed','2026-02-21 08:26:26.087','2026-02-21 08:26:26.087') RETURNING "id"
+[GIN] 2026/02/21 - 08:26:26 | 409 |       5.048ms |             ::1 | POST     "/events/02bb3968-6880-4ebb-b87f-fd7658e8d62d/register"
+[GIN] 2026/02/21 - 08:26:26 | 200 |      5.7451ms |             ::1 | DELETE   "/registrations/c91a759e-cfb0-406d-88a8-f12a7205ef8d"
+exit status 143
