@@ -389,64 +389,9 @@ Each prompt is documented with its purpose, the exact prompt text, and what it p
 **AI Tool Used:** Claude (Anthropic)  
 **Project:** Event Registration & Ticketing API  
 **Language:** Go  
-**Total Prompts Used:** 13
+**Total Prompts Used:** 6
 
-## Prompt 1 — Initial Project Planning & Requirements Analysis
-
-**Purpose:**
-To define the full scope, tech stack, and requirements before writing any code.
-
-**Prompt Used:**
-Design a production-ready Go REST API for an event registration and ticketing system. The tech stack must be Go, Gin, PostgreSQL, GORM, and UUIDs for primary keys. The project must strictly follow clean architecture principles with clearly separated layers: Handler, Service, Repository, and Model. Provide a comprehensive list of all required API endpoints, the database schema including all necessary constraints, and detail the strategy for handling concurrent bookings using SELECT FOR UPDATE. List all expected deliverables for this project.
-
-**Output Received:**
-A comprehensive project specification outlining the clean architecture layers, a complete list of RESTful endpoints, the initial database schema design, and a high-level explanation of the pessimistic locking strategy for concurrency control.
-
-## Prompt 2 — Database Schema Design
-
-**Purpose:**
-To design a normalized PostgreSQL schema with proper constraints before implementation.
-
-**Prompt Used:**
-Design a complete, normalized PostgreSQL database schema for the users, events, and registrations tables. Use UUIDs for all primary keys. Implement specific CHECK constraints on the role field (to ensure valid user roles) and status fields. Add a UNIQUE constraint on the email column, and a composite UNIQUE constraint on (event_id, user_id) to prevent duplicate registrations. Define all foreign keys with appropriate cascading actions. Finally, provide a technical explanation for why each constraint is necessary for data integrity.
-
-**Output Received:**
-SQL-like schema definitions for the three core tables, complete with UUID configurations, data type specifications, and robust constraints, along with technical justifications for the enforced data integrity rules.
-
-## Prompt 3 — Clean Architecture Folder Structure
-
-**Purpose:**
-To establish the project structure before writing any code.
-
-**Prompt Used:**
-Define the complete folder and file structure for the Go REST API project strictly adhering to clean architecture principles. Provide a detailed breakdown of the directories including cmd, internal/api/handlers, internal/core/services, internal/core/domain, and internal/repository. Explain exactly what responsibilities belong to each layer, and explicitly define the strict rules restricting what each layer is and is not allowed to import or do.
-
-**Output Received:**
-A robust, scalable directory tree structure with comprehensive documentation on the boundaries, dependencies, and responsibilities of the Handler, Service, Repository, and Model layers.
-
-## Prompt 4 — Model Layer Implementation
-
-**Purpose:**
-To implement all GORM models with proper tags, hooks, and constraints.
-
-**Prompt Used:**
-Implement the three core GORM model files (User, Event, Registration) based on the designed schema. Use UUID primary keys and generate them via BeforeCreate hooks in the Go code, explicitly avoiding reliance on the pgcrypto extension. Include proper GORM tags for column definitions, constraints, and relationships. Implement standard timestamp fields (CreatedAt, UpdatedAt) and soft delete functionality (DeletedAt) on the User and Event models. Define the composite unique index on the registration model, and include the initialization logic for AvailableSeats within the Event's BeforeCreate hook.
-
-**Output Received:**
-Production-ready Go struct models representing the database entities, complete with all specified GORM tags, UUID generation logic in BeforeCreate hooks, and robust index definitions.
-
-## Prompt 5 — Repository Layer with Concurrency-Safe Booking
-
-**Purpose:**
-To implement the most critical part of the system — the data access layer with SELECT FOR UPDATE locking.
-
-**Prompt Used:**
-Implement all three repository interfaces and their concrete implementations, focusing primarily on registration_repository.go. Implement the RegisterForEvent method within a full GORM transaction. Crucially, implement row-level pessimistic locking using SELECT FOR UPDATE when querying the event, and include detailed inline comments explaining the necessity of this lock and the race conditions that would occur without it. Implement the seat availability check, atomic seat decrement using gorm.Expr for safe concurrency, and robust unique violation detection handling both the specific GORM error and SQLSTATE 23505, with a string fallback. Additionally, implement the CancelRegistration method with its own proper transaction and locking mechanism.
-
-**Output Received:**
-The complete data access layer implementation, featuring robust transaction management, rock-solid pessimistic locking for concurrent ticket booking, and comprehensive error handling for database constraint violations.
-
-## Prompt 6 — Service Layer with Business Logic & Sentinel Errors
+## Prompt 1 — Service Layer with Business Logic & Sentinel Errors
 
 **Purpose:**
 To implement business rules and define the error contract between layers.
@@ -457,7 +402,7 @@ Implement the complete service layer along with the domain error contract. Creat
 **Output Received:**
 A highly decoupled service layer containing all core business logic, a comprehensive set of defined sentinel errors for standardized error handling, and correctly abstracted repository interfaces.
 
-## Prompt 7 — Handler Layer with Error Mapping
+## Prompt 2 — Handler Layer with Error Mapping
 
 **Purpose:**
 To implement the HTTP presentation layer with proper status code mapping.
@@ -468,7 +413,7 @@ Implement all HTTP handler files strictly adhering to the rule that handlers con
 **Output Received:**
 A clean presentation layer built with Gin, featuring robust HTTP request parsing, boundary validation, and a centralized, predictable error mapping system returning standardized JSON payloads.
 
-## Prompt 8 — Main Entry Point & Dependency Wiring
+## Prompt 3 — Main Entry Point & Dependency Wiring
 
 **Purpose:**
 To wire all layers together correctly and configure the server.
@@ -479,7 +424,7 @@ Implement the main.go entry point for the application. Write the logic to load c
 **Output Received:**
 The fully functional application entry point, completely wiring the clean architecture components via manual dependency injection, configuring the database, and bootstrapping the Gin server.
 
-## Prompt 9 — Goroutine-Based Concurrency Test
+## Prompt 4 — Goroutine-Based Concurrency Test
 
 **Purpose:**
 To prove with a real test that the SELECT FOR UPDATE implementation prevents overbooking.
@@ -490,7 +435,7 @@ Write a comprehensive Go test in test/concurrency_test.go to validate the concur
 **Output Received:**
 A robust integration test utilizing goroutines to simulate a high-concurrency race condition, definitively proving the pessimistic locking mechanism correctly prevents overbooking.
 
-## Prompt 10 — Bug Fixes & Production Hardening
+## Prompt 5 — Bug Fixes & Production Hardening
 
 **Purpose:**
 To fix all identified issues after initial implementation and make the project production-grade.
@@ -501,29 +446,7 @@ Audit and apply necessary production hardening fixes across the codebase. Addres
 **Output Received:**
 Code modifications across models, configuration, and the entry point that eliminated runtime warnings, decoupled the application from specific Postgres extensions, and improved overall production readiness.
 
-## Prompt 11 — Full Project Audit
-
-**Purpose:**
-To do a complete end-to-end verification that every file is correct, every interface is satisfied, every import is valid, and the project compiles and runs without issues.
-
-**Prompt Used:**
-Perform a full, exhaustive audit of the entire codebase. Verify the correctness of all import paths and ensure zero circular dependencies. Confirm that all repository and service interfaces are fully and correctly satisfied by their implementations. Validate the integrity of the Handler → Service → Repository call chain architecture. Verify the correct implementation of the BeforeCreate hooks on all models. Double-check the SELECT FOR UPDATE implementation and the robustness of the isUniqueViolation detection logic. Validate the assertions in the concurrency test, inspect the go.mod dependencies, and verify the structural integrity of the folder architecture while identifying any potential runtime bugs.
-
-**Output Received:**
-Confirmation of architectural compliance, interface satisfaction, import resolution, and overall project stability, ensuring the application compiles and functions precisely as designed.
-
-## Prompt 12 — README.md Documentation
-
-**Purpose:**
-To create professional documentation explaining the project, setup, and concurrency strategy.
-
-**Prompt Used:**
-Write a complete, professional README.md for the Event Registration & Ticketing API project. Provide a high-level project overview and explicitly detail the utilized tech stack. Include a mermaid or text clean architecture breakdown. Provide exhaustive, step-by-step local setup instructions. Document all available API endpoints, including accurate curl examples and standard sample JSON responses. Finally, write a detailed explanation of the concurrency strategy focusing on the pessimistic locking mechanism, and provide instructions on how to run the integrated concurrency test.
-
-**Output Received:**
-A comprehensive, developer-friendly README.md file covering project setup, architectural overviews, API consumption guides, and technical explanations of core concurrency features.
-
-## Prompt 13 — DESIGN.md Architecture & Race Condition Analysis
+## Prompt 6 — DESIGN.md Architecture & Race Condition Analysis
 
 **Purpose:**
 To document the architectural decisions and provide a deep technical explanation of the concurrency solution.
@@ -538,12 +461,10 @@ An advanced technical design document containing architectural visualizations, s
 
 ## Summary
 
-These prompts were used iteratively to build the project from scratch in a logical,
-layered order — starting from requirements, through architecture, implementation,
+These prompts were used iteratively to build the project in a logical,
+layered order — through architecture, implementation,
 testing, hardening, and finally documentation. Each prompt built on the output
 of the previous one, ensuring a coherent and production-grade final result.
 
-All generated code was reviewed, understood, and verified to compile and run correctly
-before submission.
 
 Suitable for academic review and production backend evaluation.
